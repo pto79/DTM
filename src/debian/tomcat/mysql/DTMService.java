@@ -2,6 +2,7 @@ package debian.tomcat.mysql;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -29,6 +30,8 @@ import javax.ws.rs.core.Response.Status;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientResponse;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 @Path("")
 public class DTMService {
@@ -191,5 +194,23 @@ public class DTMService {
 			e.printStackTrace();
 		}
 		return Response.status(Status.OK).entity(tdArray).build();
+	}
+	
+	@POST
+	@Path("/upload")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	public Response uploadFile(
+		@FormDataParam("file") InputStream uploadedInputStream,
+		@FormDataParam("file") FormDataContentDisposition fileDetail) {
+
+		String uploadedFileLocation = "d://uploaded/" + fileDetail.getFileName();
+
+		// save it
+		DTMUtil.writeToFile(uploadedInputStream, uploadedFileLocation);
+
+		String output = "File uploaded to : " + uploadedFileLocation;
+
+		return Response.status(200).entity(output).build();
+
 	}
 }
